@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" />
+  <title>2021年2月b站热播视频排行</title>
+  <style></style>
+</head>
+
+<body>
+  <div id="app" class="box">
+    <h1 style="color: #E3ABD1; margin-left: 40px;">2021年2月b站热播视频排行</h1>
+    <h2 style="color: #E3ABD1; margin-left: 40px;">快来看看有没有你喜欢的up主吧：</h2>
+    <!-- 排序 -->
+    <button @click="setOrderType(0)" style="margin-left: 10px; margin-top: 20px; height: 50px; width: 200px;">按B站评分升序排序</button>
+    <br>
+    <button @click="setOrderType(1)" style="margin-left: 10px; margin-top: 20px; margin-bottom: 20px; height: 50px; width: 200px;">按B站评分降序排序</button>
+      <div class="container">
+        <div class="row">
+            <div class="col s12 m12" v-for="ranks in filerRanks">
+            <div class="card cyan lighten-5">
+              <div class="card-content">
+                <p class="card-nickname">up主：{{ranks.nickname}}</p>
+                <p class="card-id">哔哩哔哩id：{{ranks.id}}</p>
+                <p class="card-number">视频播放量：{{ranks.number}}</p>
+                <p class="card-comment">视频评论量：{{ranks.comment}} min</p>
+                <p class="card-time">发布时间：{{ranks.time}}</p>
+                <h3 class="card-score" style="color: #68B43C;">B站评分：{{ranks.score}}</h3>
+              </div>
+              <div class="card-content purple lighten-4">
+                <div>上榜视频名称：{{ranks.video}}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script>
+    // 窗体加载就执行
+    window.onload = function () {
+      //定义json文件目录，本地或者服务器都可以，即下面的请求地址
+      let url = '../json/bilibili.json'
+      //发起一个原生的ajax请求
+      let request = new XMLHttpRequest()
+      //打开一个get请求，尚未发送
+      request.open('get', url)
+      //发送请求（不带数据）
+      request.send(null)
+      //请求成功，执行回调函数
+      request.onload = function () {
+        //响应正确，处理数据
+        if (request.status == 200) {
+          let json = JSON.parse(request.responseText)
+          // console.log(json)
+          const app = new Vue({
+            el: '#app',
+            data: {
+              keywords1: '',
+              keywords2: '',
+              ranks: [],
+              orderType: 0,
+            },
+            computed: {
+              filerRanks() {
+                // const { keywords, person } = this
+                let resultRanks
+                // 按关键字搜索
+                resultRanks = this.ranks.filter((item) => item.nickname.indexOf(this.keywords1) != -1)
+                // console.log(JSON.stringify(resultPersons))
+
+                console.log(this.orderType)
+                // 按电影评分升序排序
+                if (this.orderType === 0) {
+                  resultRanks.sort(function (p1, p2) {
+                    return p1.score - p2.score
+                  })
+                }
+                // 按电影评分降序排序
+                if (this.orderType === 1) {
+                  resultRanks.sort((p1, p2) => p2.score - p1.score)
+                }
+                return resultRanks
+              },
+            },
+
+            methods: {
+              // 设置orderType的值
+              setOrderType(val) {
+                this.orderType = val
+                console.log(this.orderType)
+              },
+
+            },
+            created() {
+              this.ranks = json
+              console.log(this.ranks)
+            },
+          })
+        }
+      }
+    }
+  </script>
+</body>
+
+</html>
